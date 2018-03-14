@@ -1,0 +1,58 @@
+version: '3'
+
+services:
+ 
+ elasticsearch:
+   image: docker.elastic.co/elasticsearch/elasticsearch-oss:6.2.1
+   container_name: elasticsearch
+   restart: always
+   volumes:
+     - esdata:/usr/share/elasticsearch/data
+   ports:
+     - 9200:9200
+   networks:
+    - esnet
+
+
+ web:
+  build: ./engine
+  volumes: 
+   - webdata:/home/setayesh/Desktop/CedarMap/engine
+  ports:
+   - 5001:8080 
+  container_name: engine
+  networks:
+   - esnet
+
+ routing: 
+  build: ./routing
+  container_name: router
+  ports: 
+   - 9090:9090
+  tty: true
+  stdin_open: true
+  networks:
+   - esnet
+
+ postgres:
+  image: postgres
+  restart: always
+  networks:
+   - esnet
+  container_name: DB
+  environment:
+    POSTGRES_PASSWORD: mypass
+  volumes:
+     - dbdata:/home/setayesh/Desktop/CedarMap/DB
+ 
+volumes:
+ webdata:
+  driver: local
+ esdata:
+  driver: local
+ dbdata:
+  driver: local
+
+
+networks:
+        esnet:
